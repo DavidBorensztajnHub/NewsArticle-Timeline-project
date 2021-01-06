@@ -2,7 +2,7 @@ import json
 import pandas as pd
 
 articles = []
-file = open("articles_en_2020_raw.json")
+file = open("../articles_en_2020_raw.json")
 for article in file:
     articles.append(json.loads(article))
 file.close()
@@ -17,5 +17,5 @@ df.head()
 for i in articles[0]:
     print(i)
 
-print(articles[2]["images"])
+#Emms edit
 
