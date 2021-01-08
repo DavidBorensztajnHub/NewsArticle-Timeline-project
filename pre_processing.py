@@ -1,7 +1,8 @@
-import json
-import pandas as pd, numpy as np
+import json, pandas as pd, numpy as np
 import string, re, nltk
+from bs4 import BeautifulSoup
 from pathlib import Path
+
 
 # load data
 def open_json(filepath):
@@ -37,9 +38,12 @@ df = pd.DataFrame({"date":dates, "intro":intros, "header":headers, "text": pars}
 # functions for cleaning up text
 # remove html punctuation
 def remove_html_punct(text):
-    result = string.punctuation  
-    text = re.sub('<[^<]+?>', '', text)
-    no_punct=[words for words in text if words not in result]
+    # remove html tags
+    text = BeautifulSoup(text,features="html.parser").get_text()
+    
+    # remove punctuation
+    punc = string.punctuation  
+    no_punct = [words for words in text if words not in punc]
     words_wo_punct=''.join(no_punct)
     return words_wo_punct
 
@@ -54,10 +58,12 @@ def remove_stopwords(text):
     text = [word for word in text if word not in stopword]
     return text
 
-# apply functions
-df['text'] = df['text'].apply(lambda x: remove_html_punct(x))
-df['text'] = df['text'].apply(lambda x: tokenize(x.lower()))
-df[["intro","header","text"]].apply(remove_stopwords, axis=1)
 
-print(df)
+# apply functions
+#df[["intro","header","text"]].apply(remove_html_punct, axis=1)
+#df['text'] = df['text'].apply(lambda x: remove_html_punct(x))
+#df['text'] = df['text'].apply(lambda x: tokenize(x.lower()))
+#df[["intro","header","text"]].apply(remove_stopwords, axis=1)
+
+#print(df)
 # df.to_csv(parent_path / "dataframe2.csv")
