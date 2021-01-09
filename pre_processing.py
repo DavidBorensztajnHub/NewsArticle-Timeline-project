@@ -1,8 +1,15 @@
+"""
+This program loads the json dataset and 
+preprocesses the data by removing irrelevant
+words and punctuation. it then stores the
+data in a .csv file
+"""
+
+# libraries
 import json, pandas as pd, numpy as np
 import string, re, nltk
 from bs4 import BeautifulSoup
 from pathlib import Path
-
 
 # load data
 def open_json(filepath):
@@ -33,7 +40,7 @@ def unpack_bodies(bodies):
 intros, headers, pars = unpack_bodies(bodies)
 
 # put articles into pandas dataframe
-df = pd.DataFrame({"date":dates, "intro":intros, "header":headers, "text": pars})
+df = pd.DataFrame({"date":dates, "header":headers, "intro":intros, "text": pars})
 
 # functions for cleaning up text
 # remove html punctuation
@@ -45,12 +52,11 @@ def remove_html_punct(text):
     punc = string.punctuation  
     no_punct = [words for words in text if words not in punc]
     words_wo_punct=''.join(no_punct)
-    return words_wo_punct
+    return words_wo_punct.lower()
 
 # split text into separate words
 def tokenize(text):
-    split=re.split("\W+",text) 
-    return split
+    return nltk.tokenize.word_tokenize(text)
 
 # remove meaningless common words
 def remove_stopwords(text):
@@ -58,12 +64,18 @@ def remove_stopwords(text):
     text = [word for word in text if word not in stopword]
     return text
 
+# find articles that have an intro
+has_intro = df["intro"].apply(lambda x: x != None)
 
 # apply functions
-#df[["intro","header","text"]].apply(remove_html_punct, axis=1)
-#df['text'] = df['text'].apply(lambda x: remove_html_punct(x))
-#df['text'] = df['text'].apply(lambda x: tokenize(x.lower()))
-#df[["intro","header","text"]].apply(remove_stopwords, axis=1)
+df["header"] = df["header"].apply(remove_html_punct)
+df["text"] = df["text"].apply(remove_html_punct)
+df.loc[has_intro,"intro"] = df.loc[has_intro,"intro"].apply(remove_html_punct)
 
-#print(df)
-# df.to_csv(parent_path / "dataframe2.csv")
+df["header"] = df["header"].apply(tokenize)
+df["text"] = df["text"].apply(tokenize)
+df.loc[has_intro,"intro"] = df.loc[has_intro,"intro"].apply(tokenize)
+
+df[["intro","header","text"]] = df[["intro","header","text"]].apply(remove_stopwords)
+
+df.to_csv(parent_path / "dataframe2.csv")
