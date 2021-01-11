@@ -19,7 +19,7 @@ def open_json(filepath):
     for article in file:
         articles.append(json.loads(article))
         i+=1
-        if i > 100: break
+        #if i > 1000: break
     file.close()
     return articles
 
@@ -46,23 +46,26 @@ df = pd.DataFrame({"date":dates, "header":headers, "intro":intros, "text": pars}
 # remove html punctuation
 def remove_html_punct(text):
     # remove html tags
-    text = BeautifulSoup(text,features="html.parser").get_text()
+    if text:
+        text = BeautifulSoup(text,features="html.parser").get_text()
     
-    # remove punctuation
-    punc = string.punctuation  
-    no_punct = [words for words in text if words not in punc]
-    words_wo_punct=''.join(no_punct)
-    return words_wo_punct.lower()
+        # remove punctuation
+        punc = string.punctuation  
+        no_punct = [words for words in text if words not in punc]
+        words_wo_punct=''.join(no_punct)
+        return words_wo_punct.lower()
 
 # split text into separate words
 def tokenize(text):
-    return nltk.tokenize.word_tokenize(text)
+    if text:
+        return nltk.tokenize.word_tokenize(text)
 
 # remove meaningless common words
 def remove_stopwords(text):
-    stopword = nltk.corpus.stopwords.words('english')
-    text = [word for word in text if word not in stopword]
-    return text
+    if text:
+        stopword = nltk.corpus.stopwords.words('english')
+        text = [word for word in text if word not in stopword]
+        return text
 
 # find articles that have an intro
 has_intro = df["intro"].apply(lambda x: x != None)
@@ -77,5 +80,7 @@ df["text"] = df["text"].apply(tokenize)
 df.loc[has_intro,"intro"] = df.loc[has_intro,"intro"].apply(tokenize)
 
 df[["intro","header","text"]] = df[["intro","header","text"]].apply(remove_stopwords)
+
+df.loc[~has_intro,"intro"] = df.loc[~has_intro,"text"[:20]]
 
 df.to_csv(parent_path / "dataframe2.csv")
