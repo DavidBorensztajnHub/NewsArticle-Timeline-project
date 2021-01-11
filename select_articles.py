@@ -1,18 +1,19 @@
 # libraries
-import json, pandas as pd, numpy as np
-import string, re, nltk
-from bs4 import BeautifulSoup
+import pandas as pd, numpy as np
 from pathlib import Path
 
-df = pd.read_csv("../dataframe2.csv").head(10)
+df = pd.read_csv("../dataframe2.csv")
 
 search_terms = ["virus","corona"]
 thresh = 2
-for article, title in zip(df["intro"],df["header"]):
-    counter = 0
+filter = []
+for intro, title in zip(df["intro"],df["header"]):
+    num_terms = 0
     for term in search_terms:
-        if term in article:
-            counter +=1 
+        if term in intro:
+            num_terms +=1 
         
-        if counter >= thresh:
-            print(title)
+        filter.append(num_terms >= thresh)
+            
+df = df.drop(pd.Series(filter),axis=0)
+df.to_csv("stuff.csv")

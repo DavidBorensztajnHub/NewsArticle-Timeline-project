@@ -10,6 +10,8 @@ import json, pandas as pd, numpy as np
 import string, re, nltk
 from bs4 import BeautifulSoup
 from pathlib import Path
+import nltk
+from nltk.stem import PorterStemmer, WordNetLemmatizer
 
 # load data
 def open_json(filepath):
@@ -19,7 +21,7 @@ def open_json(filepath):
     for article in file:
         articles.append(json.loads(article))
         i+=1
-        #if i > 1000: break
+        if i > 1000: break
     file.close()
     return articles
 
@@ -62,9 +64,20 @@ def tokenize(text):
 
 # remove meaningless common words
 def remove_stopwords(text):
+    stopword = nltk.corpus.stopwords.words('english')
+    text = [word for word in text if word not in stopword]
+    return text
+
+def lemmatizing(text):
+    lemmatizer = WordNetLemmatizer()
     if text:
-        stopword = nltk.corpus.stopwords.words('english')
-        text = [word for word in text if word not in stopword]
+        text = [lemmatizer.lemmatize(word) for word in text]
+        return text
+
+def stemming(text):
+    ps = PorterStemmer()
+    if text:
+        text=[ps.stem(word) for word in text]
         return text
 
 # find articles that have an intro
@@ -80,6 +93,14 @@ df["text"] = df["text"].apply(tokenize)
 df.loc[has_intro,"intro"] = df.loc[has_intro,"intro"].apply(tokenize)
 
 df[["intro","header","text"]] = df[["intro","header","text"]].apply(remove_stopwords)
+
+df["header"] = df["header"].apply(lemmatizing)
+df["text"] = df["text"].apply(lemmatizing)
+df.loc[has_intro,"intro"] = df.loc[has_intro,"intro"].apply(lemmatizing)
+
+#df["header"] = df["header"].apply(stemming)
+#df["text"] = df["text"].apply(stemming)
+#df.loc[has_intro,"intro"] = df.loc[has_intro,"intro"].apply(stemming)
 
 df.loc[~has_intro,"intro"] = df.loc[~has_intro,"text"[:20]]
 
