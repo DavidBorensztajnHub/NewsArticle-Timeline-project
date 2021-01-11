@@ -1,59 +1,108 @@
-import json
-import pandas as pd
-import numpy as np
-import string
-import re
+"""
+This program loads the json dataset and 
+preprocesses the data by removing irrelevant
+words and punctuation. it then stores the
+data in a .csv file
+"""
+
+# libraries
+import json, pandas as pd, numpy as np
+import string, re, nltk
+from bs4 import BeautifulSoup
+from pathlib import Path
 import nltk
-from pandas.io.json import json_normalize
 from nltk.stem import PorterStemmer
 from nltk.stem import WordNetLemmatizer
 
+# load data
+def open_json(filepath):
+    articles = []
+    file = open(filepath)
+    i=0
+    for article in file:
+        articles.append(json.loads(article))
+        i+=1
+        if i > 100: break
+    file.close()
+    return articles
 
-articles = []
-file = open("../articles_en_2019_raw.nosync.json")
-i = 0
-for article in file:
-    articles.append(json.loads(article))
-    i = i + 1
-    if i >= 5:
-        break
-file.close()
+parent_path = Path.cwd().parent
+articles = open_json(parent_path / "articles_en_2020_raw.nosync.json")
 
-print(articles[0])
+# get dates and bodies for each article
+dates = [article["date"] for article in articles]
+bodies = [article["body"] for article in articles]
 
-df_flat = json_normalize(data = articles[0], record_path = 'body', meta = ['id', 'date'])
-for i in range(1, len(articles)):
-    df = json_normalize(data = articles[i], record_path = 'body', meta = ['id', 'date'])
-    df_flat = df_flat.append(df,ignore_index=False, sort=True)
+# unpack body into title, intro and text
+def unpack_bodies(bodies):
+    intros = [next((sec["content"] for sec in body if sec["type"]=="intro"), None) for body in bodies]
+    headers = [next((sec["content"] for sec in body if sec["type"]=="hl1"), None) for body in bodies]
+    paragraphs = [" ".join([sec["content"] for sec in body if sec["type"] == "p"]) for body in bodies]
+    return intros, headers, paragraphs
 
-print(df_flat)
+intros, headers, pars = unpack_bodies(bodies)
 
-def remove_html_punctuation(text):
-    result = string.punctuation  
-    text = re.sub('<[^<]+?>', '', text)
-    no_punct=[words for words in text if words not in result]
-    words_wo_punct=''.join(no_punct)
-    return words_wo_punct
+# put articles into pandas dataframe
+df = pd.DataFrame({"date":dates, "header":headers, "intro":intros, "text": pars})
 
+# functions for cleaning up text
+# remove html punctuation
+def remove_html_punct(text):
+    # remove html tags
+    if text:
+        text = BeautifulSoup(text,features="html.parser").get_text()
+    
+        # remove punctuation
+        punc = string.punctuation  
+        no_punct = [words for words in text if words not in punc]
+        words_wo_punct=''.join(no_punct)
+        return words_wo_punct.lower()
+
+# split text into separate words
 def tokenize(text):
-    split=re.split("\W+",text) 
-    return split
+    if text:
+        return nltk.tokenize.word_tokenize(text)
 
-stopword = nltk.corpus.stopwords.words('english')
+# remove meaningless common words
 def remove_stopwords(text):
-    text=[word for word in text if word not in stopword]
+    stopword = nltk.corpus.stopwords.words('english')
+    text = [word for word in text if word not in stopword]
     return text
 
-ps = PorterStemmer()
+def lemmatizing(text):
+    lemmatizer = WordNetLemmatizer()
+    if text:
+        text = [lemmatizer.lemmatize(word) for word in text]
+        return text
+
 def stemming(text):
-    text=[ps.stem(word) for word in text]
-    return text
+    ps = PorterStemmer()
+    if text:
+        text=[ps.stem(word) for word in text]
+        return text
 
-#def lemmatization
-df_flat['content_wo_punct'] = df_flat['content'].apply(lambda x: remove_html_punctuation(x))
-df_flat['content_wo_punct_split']=df_flat['content_wo_punct'].apply(lambda x: tokenize(x.lower()))
-df_flat['content_wo_punct_split'] = df_flat['content_wo_punct_split'].apply(lambda x: remove_stopwords(x))
-df_flat['content_wo_punct_split_stemmed'] = df_flat['content_wo_punct_split'].apply(lambda x: stemming(x))
+# find articles that have an intro
+has_intro = df["intro"].apply(lambda x: x != None)
 
-print(df_flat.head(20))
-print("   ")
+# apply functions
+df["header"] = df["header"].apply(remove_html_punct)
+df["text"] = df["text"].apply(remove_html_punct)
+df.loc[has_intro,"intro"] = df.loc[has_intro,"intro"].apply(remove_html_punct)
+
+df["header"] = df["header"].apply(tokenize)
+df["text"] = df["text"].apply(tokenize)
+df.loc[has_intro,"intro"] = df.loc[has_intro,"intro"].apply(tokenize)
+
+df[["intro","header","text"]] = df[["intro","header","text"]].apply(remove_stopwords)
+
+df["header"] = df["header"].apply(lemmatizing)
+df["text"] = df["text"].apply(lemmatizing)
+df.loc[has_intro,"intro"] = df.loc[has_intro,"intro"].apply(lemmatizing)
+
+#df["header"] = df["header"].apply(stemming)
+#df["text"] = df["text"].apply(stemming)
+#df.loc[has_intro,"intro"] = df.loc[has_intro,"intro"].apply(stemming)
+
+df.loc[~has_intro,"intro"] = df.loc[~has_intro,"text"[:20]]
+
+df.to_csv(parent_path / "dataframe2.csv")
