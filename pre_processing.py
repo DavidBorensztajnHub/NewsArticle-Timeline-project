@@ -11,8 +11,7 @@ import string, re, nltk
 from bs4 import BeautifulSoup
 from pathlib import Path
 import nltk
-from nltk.stem import PorterStemmer
-from nltk.stem import WordNetLemmatizer
+from nltk.stem import PorterStemmer, WordNetLemmatizer
 
 # load data
 def open_json(filepath):
@@ -20,14 +19,15 @@ def open_json(filepath):
     file = open(filepath)
     i=0
     for article in file:
-        articles.append(json.loads(article))
+        if i % 10 == 0:
+            articles.append(json.loads(article))
         i+=1
-        if i > 100: break
+        if i > 30000: break
     file.close()
     return articles
 
 parent_path = Path.cwd().parent
-articles = open_json(parent_path / "articles_en_2020_raw.nosync.json")
+articles = open_json(parent_path / "articles_en_2020_raw.json")
 
 # get dates and bodies for each article
 dates = [article["date"] for article in articles]
@@ -105,4 +105,4 @@ df.loc[has_intro,"intro"] = df.loc[has_intro,"intro"].apply(lemmatizing)
 
 df.loc[~has_intro,"intro"] = df.loc[~has_intro,"text"[:20]]
 
-df.to_csv(parent_path / "dataframe2.csv")
+df.to_csv(parent_path / "dataframe2.csv", index=False)
