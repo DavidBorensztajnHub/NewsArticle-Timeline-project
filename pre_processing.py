@@ -19,10 +19,9 @@ def open_json(filepath):
     file = open(filepath)
     i=0
     for article in file:
-        if i % 10 == 0:
-            articles.append(json.loads(article))
+        articles.append(json.loads(article))
         i+=1
-        if i > 30000: break
+        if i > 50000: break
     file.close()
     return articles
 
@@ -105,4 +104,4 @@ df.loc[has_intro,"intro"] = df.loc[has_intro,"intro"].apply(lemmatizing)
 
 df.loc[~has_intro,"intro"] = df.loc[~has_intro,"text"[:20]]
 
-df.to_csv(parent_path / "dataframe2.csv", index=False)
+df.to_json(parent_path / "dataframe.json")
