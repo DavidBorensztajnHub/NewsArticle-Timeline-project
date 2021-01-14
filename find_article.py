@@ -19,5 +19,5 @@ def find_article(filename, index):
     file.write(str(article["body"]))
     file.close()
 
-index = 5071
+index = 40
 find_article("../articles_en_2020_raw.json", index)

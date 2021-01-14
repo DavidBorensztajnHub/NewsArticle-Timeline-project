@@ -22,11 +22,7 @@ def open_json(filepath):
         if i % 10 == 0:
             articles.append(json.loads(article))
         i+=1
-<<<<<<< HEAD
-        if i > 15: break
-=======
         if i > 30000: break
->>>>>>> b3ec3964a415cdeda1f577ea337d1a2557091e11
     file.close()
     return articles
 
@@ -48,7 +44,10 @@ intros, headers, pars = unpack_bodies(bodies)
 
 # put articles into pandas dataframe
 df = pd.DataFrame({"date":dates, "header":headers, "intro":intros, "text": pars})
+
+# fill empty cells with string
 df = df.fillna("empty")
+df = df.replace("","empty")
 
 # find articles that have an intro
 has_intro = df["intro"].apply(lambda x: x != "empty")
@@ -61,15 +60,14 @@ def remove_html_punct(text):
         text = BeautifulSoup(text,features="html.parser").get_text()
     
         # remove punctuation
-        punc = string.punctuation  
+        punc = string.punctuation + "“”‘’"
         no_punct = [words for words in text if words not in punc]
         words_wo_punct=''.join(no_punct)
         return words_wo_punct.lower()
 
 # split text into separate words
 def tokenize(text):
-    if text:
-        return nltk.tokenize.word_tokenize(text)
+    return nltk.tokenize.word_tokenize(text)
 
 # remove meaningless common words
 def remove_stopwords(text):
@@ -79,15 +77,13 @@ def remove_stopwords(text):
 
 def lemmatizing(text):
     lemmatizer = WordNetLemmatizer()
-    if text:
-        text = [lemmatizer.lemmatize(word) for word in text]
-        return text
+    text = [lemmatizer.lemmatize(word) for word in text]
+    return text
 
 def stemming(text):
     ps = PorterStemmer()
-    if text:
-        text=[ps.stem(word) for word in text]
-        return text
+    text=[ps.stem(word) for word in text]
+    return text
 
 # apply preprocessing functions
 columns = ["header","intro","text"]
@@ -97,8 +93,4 @@ for col in columns:
 # set first 20 words of text as intro for articles that don't have an intro
 df.loc[~has_intro,"intro"] = df.loc[~has_intro,"text"[:20]]
 
-<<<<<<< HEAD
-df.to_csv(parent_path / "dataframe.json")
-=======
-df.to_csv(parent_path / "dataframe2.csv", index=False)
->>>>>>> b3ec3964a415cdeda1f577ea337d1a2557091e11
+df.to_json(parent_path / "dataframe.json")
