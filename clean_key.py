@@ -13,20 +13,26 @@ df = pd.read_csv("../dataframe2.csv", converters=
 
 wiki_corona_file = open("../wiki_corona.txt", "r")
 wiki_corona = wiki_corona_file.readlines()
+wiki_df = pd.DataFrame(wiki_corona)
+wiki_df.columns = ["corona"]
+print(wiki_df)
 
 wiki_blm_file = open("../wiki_blm.txt", "r")
 wiki_blm = wiki_blm_file.readlines()
+wiki_df["blm"] = wiki_blm
 
 wiki_bxt_file = open("../wiki_bxt.txt", "r")
 wiki_bxt = wiki_bxt_file.readlines()
+wiki_df["bxt"] = wiki_bxt
 
 wiki_f1_file = open("../wiki_f1.txt", "r")
 wiki_f1 = wiki_f1_file.readlines()
+wiki_df["f1"] = wiki_f1
 
 stop_words = set(stopwords.words("english"))
 
 # Creating a list of custom stopwords
-new_words = ["using", "show", "result", "large", "also", "iv", "one", "two", "new", "previously", "shown", "mr", 'wikipedia']
+new_words = ["using", "show", "result", "large", "also", "iv", "one", "two", "new", "previously", "shown", "mr", 'wikipedia', 'retrieved', 'archieved']
 stop_words = stop_words.union(new_words)
 
 # Most frequently occuring words
@@ -36,6 +42,7 @@ def get_top_n_words(corpus, n, stop_words, ngram_range):
         return [(0,0)]
     vec = CountVectorizer(stop_words=stop_words, max_features=10000, ngram_range=ngram_range).fit(corpus)
     bag_of_words = vec.transform(corpus) 
+    words_freq = list(vec.vocabulary_.keys())
     sum_words = bag_of_words.sum(axis=0) 
     words_freq = [(word, sum_words[0, idx]) for word, idx in      
                 vec.vocabulary_.items()]
@@ -46,64 +53,57 @@ def get_top_n_words(corpus, n, stop_words, ngram_range):
 # function the frequency from the words
 def split_freq(df):
     top_n_words = []
-    for words in df:
+    for words, frq in df:
         top_n_words.append(words)
     return top_n_words
 
 # applying functions to dataframe
-df["top_n_words"] = df['text'].apply(get_top_n_words, args=(20, stop_words, (1,3)))
-df["top_n_words_2"] = df['text'].apply(get_top_n_words, args=(20, stop_words, (2,3)))
-df["top_n_words_3"] = df['text'].apply(get_top_n_words, args=(20, stop_words, (3,3)))
+#df["top_n_words"] = df['text'].apply(get_top_n_words, args=(20, stop_words, (1,3)))
+#df["top_n_words_2"] = df['text'].apply(get_top_n_words, args=(20, stop_words, (2,3)))
+#df["top_n_words_3"] = df['text'].apply(get_top_n_words, args=(20, stop_words, (3,3)))
 
-df['top_words'] = df['top_n_words'].apply(split_freq)
-df['top_words_2'] = df['top_n_words_2'].apply(split_freq)
-df['top_words_3'] = df['top_n_words_3'].apply(split_freq)
+#df['top_words'] = df['top_n_words'].apply(split_freq)
+#df['top_words_2'] = df['top_n_words_2'].apply(split_freq)
+#df['top_words_3'] = df['top_n_words_3'].apply(split_freq)
 
-cv1=CountVectorizer(stop_words=stop_words, max_features=10000, ngram_range=(1,3))
-cv2=CountVectorizer(stop_words=stop_words, max_features=10000, ngram_range=(2,3))
-cv3=CountVectorizer(stop_words=stop_words, max_features=10000, ngram_range=(3,3))
 
 # top words wiki covid
-X= cv1.fit_transform(wiki_corona)
-wiki_df = pd.DataFrame(list(cv1.vocabulary_.keys())[:30])
-wiki_df.columns=["corona_One-gram"]
+wiki_df['corona_top_1'] = wiki_df["corona"].apply(get_top_n_words, args=(20, stop_words, (1,3)))
+wiki_df['corona_top_2'] = wiki_df["corona"].apply(get_top_n_words, args=(20, stop_words, (2,3)))
+wiki_df['corona_top_3'] = wiki_df["corona"].apply(get_top_n_words, args=(20, stop_words, (3,3)))
 
-
-X=cv2.fit_transform(wiki_corona)
-wiki_df["corona_Two-gram"] = list(cv2.vocabulary_.keys())[:30]
-
-X=cv3.fit_transform(wiki_corona)
-wiki_df["corona_Tri-gram"] = list(cv3.vocabulary_.keys())[:30]
+wiki_df['corona_top_1'] = wiki_df['corona_top_1'].apply(split_freq)
+wiki_df['corona_top_2'] = wiki_df['corona_top_2'].apply(split_freq)
+wiki_df['corona_top_3'] = wiki_df['corona_top_3'].apply(split_freq)
 
 # top words wiki blm
-X=cv1.fit_transform(wiki_blm)
-wiki_df["blm_One-gram"] = list(cv1.vocabulary_.keys())[:30]
+wiki_df['blm_top_1'] = wiki_df["blm"].apply(get_top_n_words, args=(20, stop_words, (1,3)))
+wiki_df['blm_top_2'] = wiki_df["blm"].apply(get_top_n_words, args=(20, stop_words, (2,3)))
+wiki_df['blm_top_3'] = wiki_df["blm"].apply(get_top_n_words, args=(20, stop_words, (3,3)))
 
-X=cv2.fit_transform(wiki_blm)
-wiki_df["blm_Two-gram"] = list(cv2.vocabulary_.keys())[:30]
-
-X=cv3.fit_transform(wiki_blm)
-wiki_df["blm_Tri-gram"] = list(cv3.vocabulary_.keys())[:30]
+wiki_df['blm_top_1'] = wiki_df['blm_top_1'].apply(split_freq)
+wiki_df['blm_top_2'] = wiki_df['blm_top_2'].apply(split_freq)
+wiki_df['blm_top_3'] = wiki_df['blm_top_3'].apply(split_freq)
 
 # top words wiki bxt
-X=cv1.fit_transform(wiki_bxt)
-wiki_df["bxt_One-gram"] = list(cv1.vocabulary_.keys())[:30]
+wiki_df['bxt_top_1'] = wiki_df["bxt"].apply(get_top_n_words, args=(20, stop_words, (1,3)))
+wiki_df['bxt_top_2'] = wiki_df["bxt"].apply(get_top_n_words, args=(20, stop_words, (2,3)))
+wiki_df['bxt_top_3'] = wiki_df["bxt"].apply(get_top_n_words, args=(20, stop_words, (3,3)))
 
-X=cv2.fit_transform(wiki_blm)
-wiki_df["bxt_Two-gram"] = list(cv2.vocabulary_.keys())[:30]
+wiki_df['bxt_top_1'] = wiki_df['bxt_top_1'].apply(split_freq)
+wiki_df['bxt_top_2'] = wiki_df['bxt_top_2'].apply(split_freq)
+wiki_df['bxt_top_3'] = wiki_df['bxt_top_3'].apply(split_freq)
 
-X=cv3.fit_transform(wiki_blm)
-wiki_df["bxt_Tri-gram"] = list(cv3.vocabulary_.keys())[:30]
+# top words wiki bxt
+wiki_df['f1_top_1'] = wiki_df["f1"].apply(get_top_n_words, args=(20, stop_words, (1,3)))
+wiki_df['f1_top_2'] = wiki_df["f1"].apply(get_top_n_words, args=(20, stop_words, (2,3)))
+wiki_df['f1_top_3'] = wiki_df["f1"].apply(get_top_n_words, args=(20, stop_words, (3,3)))
 
-# top words wiki f1
-X=cv1.fit_transform(wiki_f1)
-wiki_df["f1_One-gram"] = list(cv1.vocabulary_.keys())[:30]
+wiki_df['f1_top_1'] = wiki_df['f1_top_1'].apply(split_freq)
+wiki_df['f1_top_2'] = wiki_df['f1_top_2'].apply(split_freq)
+wiki_df['f1_top_3'] = wiki_df['f1_top_3'].apply(split_freq)
 
-X=cv2.fit_transform(wiki_f1)
-wiki_df["f1_Two-gram"] = list(cv2.vocabulary_.keys())[:30]
-
-X=cv3.fit_transform(wiki_f1)
-wiki_df["f1_Tri-gram"] = list(cv3.vocabulary_.keys())[:30]
+print(wiki_df.head())
 
 # safe dataframe in csv file
 wiki_df.to_csv(parent_path/ "wiki_df.csv", index=True)
