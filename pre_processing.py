@@ -45,6 +45,9 @@ intros, headers, pars = unpack_bodies(bodies)
 df = pd.DataFrame({"date":dates, "header":headers, "intro":intros, "text": pars})
 df = df.fillna("empty")
 
+# find articles that have an intro
+has_intro = df["intro"].apply(lambda x: x != "empty")
+
 # functions for cleaning up text
 # remove html punctuation
 def remove_html_punct(text):
@@ -81,35 +84,12 @@ def stemming(text):
         text=[ps.stem(word) for word in text]
         return text
 
-# find articles that have an intro
-has_intro = df["intro"].apply(lambda x: x != "empty")
-
-# apply functions
+# apply preprocessing functions
 columns = ["header","intro","text"]
-
 for col in columns:
     df[col] = [lemmatizing(remove_stopwords(tokenize(remove_html_punct(x)))) for x in df[col]]
 
-"""
-df["header"] = df["header"].apply(remove_html_punct)
-df["text"] = df["text"].apply(remove_html_punct)
-df.loc[has_intro,"intro"] = df.loc[has_intro,"intro"].apply(remove_html_punct)
-
-df["header"] = df["header"].apply(tokenize)
-df["text"] = df["text"].apply(tokenize)
-df.loc[has_intro,"intro"] = df.loc[has_intro,"intro"].apply(tokenize)
-
-df[["intro","header","text"]] = df[["intro","header","text"]].apply(remove_stopwords)
-
-df["header"] = df["header"].apply(lemmatizing)
-df["text"] = df["text"].apply(lemmatizing)
-df.loc[has_intro,"intro"] = df.loc[has_intro,"intro"].apply(lemmatizing)
-
-#df["header"] = df["header"].apply(stemming)
-#df["text"] = df["text"].apply(stemming)
-#df.loc[has_intro,"intro"] = df.loc[has_intro,"intro"].apply(stemming)
-"""
-
+# set first 20 words of text as intro for articles that don't have an intro
 df.loc[~has_intro,"intro"] = df.loc[~has_intro,"text"[:20]]
 
-df.to_csv(parent_path / "dataframe3.csv")
+df.to_csv(parent_path / "dataframe.json")
