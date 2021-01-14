@@ -21,7 +21,7 @@ def open_json(filepath):
     for article in file:
         articles.append(json.loads(article))
         i+=1
-        if i > 50000: break
+        if i > 15: break
     file.close()
     return articles
 
@@ -43,6 +43,7 @@ intros, headers, pars = unpack_bodies(bodies)
 
 # put articles into pandas dataframe
 df = pd.DataFrame({"date":dates, "header":headers, "intro":intros, "text": pars})
+df = df.fillna("empty")
 
 # functions for cleaning up text
 # remove html punctuation
@@ -81,9 +82,15 @@ def stemming(text):
         return text
 
 # find articles that have an intro
-has_intro = df["intro"].apply(lambda x: x != None)
+has_intro = df["intro"].apply(lambda x: x != "empty")
 
 # apply functions
+columns = ["header","intro","text"]
+
+for col in columns:
+    df[col] = [lemmatizing(remove_stopwords(tokenize(remove_html_punct(x)))) for x in df[col]]
+
+"""
 df["header"] = df["header"].apply(remove_html_punct)
 df["text"] = df["text"].apply(remove_html_punct)
 df.loc[has_intro,"intro"] = df.loc[has_intro,"intro"].apply(remove_html_punct)
@@ -101,7 +108,8 @@ df.loc[has_intro,"intro"] = df.loc[has_intro,"intro"].apply(lemmatizing)
 #df["header"] = df["header"].apply(stemming)
 #df["text"] = df["text"].apply(stemming)
 #df.loc[has_intro,"intro"] = df.loc[has_intro,"intro"].apply(stemming)
+"""
 
 df.loc[~has_intro,"intro"] = df.loc[~has_intro,"text"[:20]]
 
-df.to_json(parent_path / "dataframe.json")
+df.to_csv(parent_path / "dataframe3.csv")
