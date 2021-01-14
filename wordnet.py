@@ -1,21 +1,14 @@
 import nltk
-nltk.download()
-from nltk.corpus import wordnet
+from nltk.stem import PorterStemmer
+from nltk.stem import WordNetLemmatizer
 
-syns = wordnet.synsets("program")
-print(syns[0].name())
-print(syns[0].lemmas()[0].name())
-print(syns[0].definition())
-print(syns[0].examples())
+def lemmatizer_stemmer(text):
+    lemmatizer = WordNetLemmatizer()
+    ps = PorterStemmer()
+    if text:
+        text=[ps.stem(lemmatizer.lemmatize(word)) for word in text]
+        return text
 
-synonyms = []
-antonyms = []
+f1_words = ['formula', 'hamilton', 'verstappen', 'botta', 'albon', 'grosjean', 'car', 'race', 'grand', 'prix', 'driver', 'f1', 'lewi', 'merced', 'max', 'red', 'bull', 'ferrari', 'ricciardo', 'vettel', 'gp', 'mclaren', 'russel', 'schumach', 'lauda', 'pole', 'formula1']
 
-for syn in wordnet.synsets("good"):
-    for l in syn.lemmas():
-        synonyms.append(l.name())
-        if l.antonyms():
-            antonyms.append(l.antonyms()[0].name())
-
-print(set(synonyms))
-print(set(antonyms))
+print(lemmatizer_stemmer(f1_words))
