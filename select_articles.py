@@ -1,3 +1,9 @@
+"""
+this program takes the pre processed dataset
+and only keeps the articles that are
+relevant to the selected topic
+"""
+
 # libraries
 import pandas as pd, numpy as np
 from pathlib import Path
