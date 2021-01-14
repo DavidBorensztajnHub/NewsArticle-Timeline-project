@@ -1,3 +1,8 @@
+"""
+this function selects an article from the 
+raw data and writes its body to a text file
+"""
+
 import json
 
 def find_article(filename, index):
