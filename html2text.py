@@ -1,3 +1,4 @@
+
 import re
 import requests
 from bs4 import BeautifulSoup
@@ -65,4 +66,3 @@ for topic, url in urls.items():
     file = open(f"../wiki_{topic}.txt","w")
     file.write(text)
     file.close()
-

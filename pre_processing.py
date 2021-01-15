@@ -93,4 +93,8 @@ for col in columns:
 # set first 20 words of text as intro for articles that don't have an intro
 df.loc[~has_intro,"intro"] = df.loc[~has_intro,"text"[:20]]
 
+<<<<<<< HEAD
 df.to_json(parent_path / "dataframe_75k_20.json")
+=======
+df.to_json(parent_path / "dataframe_75k_20.json")
+>>>>>>> 77ef672c33c6fe903d9f958585cb8e0ebe004984
