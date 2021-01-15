@@ -1,5 +1,5 @@
-import re, nltk
-from urllib.request import urlopen
+import re
+import requests
 from bs4 import BeautifulSoup
 from pathlib import Path
 from nltk.stem.porter import PorterStemmer
@@ -8,13 +8,12 @@ from nltk.corpus import stopwords
 
 parent_path = Path.cwd().parent
 
-
 def html2text(html):
     soup = BeautifulSoup(html, features="html.parser")
 
     # kill all script and style elements
     for script in soup(["script", "style"]):
-        script.extract()    # rip it out
+        script.extract()
 
     # get text
     text = soup.get_text()
@@ -28,22 +27,22 @@ def html2text(html):
 
     stop_words = set(stopwords.words("english"))
 
-    #Remove punctuations
+    # remove punctuation
     text = re.sub('[^a-zA-Z]', ' ', text)
 
-    #Convert to lowercase
+    # convert to lowercase
     text = text.lower()
 
-    #remove tags
+    # remove tags
     text=re.sub("&lt;/?.*?&gt;"," &lt;&gt; ",text)
 
     # remove special characters and digits
     text=re.sub("(\\d|\\W)+"," ",text)
 
-    ##Convert to list from string
+    # convert to list from string
     text = text.split()
 
-    ##Stemming
+    # stemming
     ps=PorterStemmer()    #Lemmatisation
     lem = WordNetLemmatizer()
     text = [lem.lemmatize(word) for word in text if not word in  
@@ -51,37 +50,18 @@ def html2text(html):
     text = " ".join(text)
     return text
 
-#apply function
-url_covid = "https://en.wikipedia.org/wiki/Coronavirus_disease_2019"
-html_covid = urlopen(url_covid).read()
-text_covid = html2text(html_covid)
+# urls
+urls = {"covid":"https://en.wikipedia.org/wiki/Coronavirus_disease_2019",
+"blm":"https://en.wikipedia.org/wiki/Black_Lives_Matter",
+"bxt":"https://en.wikipedia.org/wiki/Brexit","f1":"https://en.wikipedia.org/wiki/Formula_One"}
 
-url_blm = "https://en.wikipedia.org/wiki/Black_Lives_Matter"
-html_blm = urlopen(url_blm).read()
-text_blm = html2text(html_blm)
+# apply function
+for topic, url in urls.items():
+    # get text from urls
+    request = requests.get(url)
+    text = html2text(request.text)
 
-url_bxt ="https://en.wikipedia.org/wiki/Brexit"
-html_bxt = urlopen(url_bxt).read()
-text_bxt = html2text(html_bxt)
-
-url_f1 = "https://en.wikipedia.org/wiki/Formula_One"
-html_f1 = urlopen(url_f1).read()
-text_f1 = html2text(html_f1)
-
-# safe text
-file2write=open(parent_path / "wiki_corona.txt",'w')
-file2write.write(text_covid)
-file2write.close()
-
-file2write=open(parent_path / "wiki_blm.txt",'w')
-file2write.write(text_blm)
-file2write.close()
-
-file2write=open(parent_path / "wiki_bxt.txt",'w')
-file2write.write(text_bxt)
-file2write.close()
-
-file2write=open(parent_path / "wiki_f1.txt",'w')
-file2write.write(text_f1)
-file2write.close()
-
+    # add text to file
+    file = open(f"../wiki_{topic}.txt","w")
+    file.write(text)
+    file.close()
