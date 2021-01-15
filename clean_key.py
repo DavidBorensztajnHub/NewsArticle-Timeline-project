@@ -8,7 +8,7 @@ from nltk.corpus import stopwords
 from collections import Counter
 
 # load data
-df = pd.read_json("../dataframe.json").head(100)
+df = pd.read_json("../dataframe.json")
 
 # creating a list of custom stopwords
 stop_words = set(stopwords.words("english"))
@@ -33,9 +33,9 @@ def get_top_n_words(corpus, n=20):
 def get_top_n_words2(corpus, n=20):
     if corpus == ["empty"]:
         return corpus
-    return [(w,c) for w,c in Counter(corpus).most_common(n) if w not in new_words]
+    return [w for w,c in Counter(corpus).most_common(n) if w not in new_words]
 
 # convert most freq words to dataframe for plotting bar plot
 df["top_n_words"] = [get_top_n_words2(x) for x in df["text"]]
 
-df.to_csv("../dataframe_key.csv", index=False)
+df.to_csv("../dataframe_key2.csv", index=False)

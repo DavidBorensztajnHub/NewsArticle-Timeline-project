@@ -19,10 +19,10 @@ def open_json(filepath):
     file = open(filepath)
     i=0
     for article in file:
-        if i % 10 == 0:
-            articles.append(json.loads(article))
-        i+=1
-        if i > 30000: break
+        #if i % 10 == 0:
+        articles.append(json.loads(article))
+        #i+=1
+        if i > 75000: break
     file.close()
     return articles
 
@@ -93,4 +93,4 @@ for col in columns:
 # set first 20 words of text as intro for articles that don't have an intro
 df.loc[~has_intro,"intro"] = df.loc[~has_intro,"text"[:20]]
 
-df.to_json(parent_path / "dataframe.json")
+df.to_json(parent_path / "dataframe_75k_20.json")
