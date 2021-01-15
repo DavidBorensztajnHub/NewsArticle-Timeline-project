@@ -1,3 +1,10 @@
+"""
+takes as input either the filtered dataset
+or the wikipedia text files and finds
+the most common word combinations
+(of 1, 2 and 3 words)
+"""
+
 # libraries
 import pandas as pd, numpy as np
 from pathlib import Path
@@ -39,13 +46,6 @@ def get_top_n_words2(corpus, n=20):
         return corpus
     return [(w,c) for w,c in Counter(corpus).most_common(n) if w not in new_words]
 """
-
-# function the frequency from the words
-def split_freq(df):
-    top_n_words = []
-    for words, frq in df:
-        top_n_words.append(words)
-    return top_n_words
 
 # find most occuring words in article text
 #df["top_n_words"] = [get_top_n_words2(x) for x in df["text"]]
