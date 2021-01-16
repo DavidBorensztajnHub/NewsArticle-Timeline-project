@@ -63,9 +63,10 @@ for topic in topics:
 
 # find most occuring n grams and put in df
 wiki_df["all_words"] = file_contents
+n = 5
 for i in range(1,4):
-    wiki_df[f"top_{str(i)}"] = [get_top_n_words(x, 20, stop_words, (i,3)) for x in wiki_df["all_words"]]
+    wiki_df[f"top_{str(i)}"] = [get_top_n_words(x, n, stop_words, (i,3)) for x in wiki_df["all_words"]]
     wiki_df[f"top_{str(i)}"] = [[word for word,freq in tuple] for tuple in wiki_df[f"top_{str(i)}"]]
 
 # save dataframe as csv file
-wiki_df.to_csv(parent_path/ "wiki_df.csv")
+wiki_df.to_json(parent_path / "wiki_df.json")

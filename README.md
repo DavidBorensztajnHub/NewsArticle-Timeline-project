@@ -1,6 +1,6 @@
 # Machine-Geleerden
 
-### What each document does
+### <span style="color:blue">What each document does</span>
 
 **pre_processing.py**
 > This program loads the json dataset and \
@@ -29,3 +29,12 @@ the most common word combinations \
 **find_article.py**
 > this function selects an article from the \
 raw data and writes its body to a text file
+
+### <span style="color:blue">Necessary libraries</span>
+* `import pandas`
+* `import numpy`
+* `from bs4 import BeautifulSoup`
+* `import nltk` (and download english dataset)
+* `from pathlib import Path`
+* `import sklearn`
+* `import requests`
