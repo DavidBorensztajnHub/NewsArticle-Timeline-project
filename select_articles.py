@@ -40,6 +40,7 @@ blm_terms = {1:wiki_df.loc["blm","top_1"],
 covid_terms[2][2] = ["global","pandemic"]
 
 f1_terms[2][2] = ["lewis","hamilton"]
+f1_terms[2][3] = ["formula","one"]
 f1_terms[2][4] = ["max","verstappen"]
 
 bxt_terms[2][0] = ["transition","period"]
@@ -57,7 +58,8 @@ def filter_topic(df, col, search_terms, thresh):
     filter = []
     terms_list = []
     # loop through articles
-    for word_list in df[col]:
+    for header, intro in zip(df["header"],df[col]):
+        word_list = header + intro
         article_terms = []
         score = 0
         # loop through words in article
@@ -65,16 +67,19 @@ def filter_topic(df, col, search_terms, thresh):
             # single words
             for term in search_terms[1]:
                 if word1 == term:
-                    score += 1   
-                    article_terms.append((term1))
+                    #if term not in article_terms:
+                    score += 1
+                    article_terms.append(term)
             # 2 words
             for term1, term2 in search_terms[2]:
-                if term1 == word1 and term2 == word2:
-                    score += 2     
+                if term1 == word1 and term2 == word2: 
+                    #if (term1,term2) not in article_terms:
+                    score += 2
                     article_terms.append((term1,term2))
             # 3 words
             for term1, term2, term3 in search_terms[3]:
                 if term1 == word1 and term2 == word2 and term3 == word3:
+                    #if (term1,term2,term3) not in article_terms:
                     score += 3
                     article_terms.append((term1,term2,term3))
 

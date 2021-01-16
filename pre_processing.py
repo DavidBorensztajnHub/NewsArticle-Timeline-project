@@ -22,7 +22,7 @@ def open_json(filepath):
         #if i  10 == 0:
         articles.append(json.loads(article))
         #i+=1
-        if i > 25000: break
+        if i > 10000: break
     file.close()
     return articles
 
@@ -60,7 +60,7 @@ def remove_html_punct(text):
         text = BeautifulSoup(text,features="html.parser").get_text()
     
         # remove punctuation
-        punc = string.punctuation + "“”‘’"
+        punc = string.punctuation + "“”‘’—"
         no_punct = [words for words in text if words not in punc]
         words_wo_punct=''.join(no_punct)
         return words_wo_punct.lower()
@@ -93,4 +93,4 @@ for col in columns:
 # set first 20 words of text as intro for articles that don't have an intro
 df.loc[~has_intro,"intro"] = df.loc[~has_intro,"text"[:20]]
 
-df.to_json(parent_path / "dataframe_75k_20.json")
+df.to_json(parent_path / "dataframe_10k_20.json")
