@@ -14,7 +14,7 @@ def remove_long_intros(df, max=100, col="intro"):
     return df
 
 # load data
-df = pd.read_json("../dataframe.json")
+df = pd.read_json("../dataframe_10k_20.json")
 df = remove_long_intros(df)
 wiki_df = pd.read_json("../wiki_df.json")
 
@@ -82,20 +82,24 @@ def filter_topic(df, col, search_terms, thresh):
                     #if (term1,term2,term3) not in article_terms:
                     score += 3
                     article_terms.append((term1,term2,term3))
-
+        if article_terms == []:
+            article_terms.append(score)
+            article_terms.append(None)
         # keep articles with sufficiently high score
         filter.append(score >= thresh)
         #if score > thresh: print(score)
         terms_list.append(article_terms)
     df["terms"] = terms_list
-    return df.loc[pd.Series(filter)]
+
+    return df[filter]
 
 # filter articles
 thresh = 3
+
 df = filter_topic(df, "intro", covid_terms, thresh)
 print(f"Kept {df.shape[0]} articles")
 
-df.to_csv("../covid.csv")
+df.to_json("../covid.json")
 #df.to_csv("../f1.csv")
 #df.to_csv("../bxt.csv")
 #df.to_csv("../blm.csv")
