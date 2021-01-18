@@ -1,3 +1,10 @@
+"""
+takes as input either the filtered dataset
+or the wikipedia text files and finds
+the most common word combinations
+(of 1, 2 and 3 words)
+"""
+
 # libraries
 import pandas as pd, numpy as np
 from pathlib import Path
@@ -39,13 +46,6 @@ def get_top_n_words2(corpus, n=20):
     return [(w,c) for w,c in Counter(corpus).most_common(n) if w not in new_words]
 """
 
-# function the frequency from the words
-def split_freq(df):
-    top_n_words = []
-    for words, frq in df:
-        top_n_words.append(words)
-    return top_n_words
-
 # find most occuring words in article text
 #df["top_n_words"] = [get_top_n_words2(x) for x in df["text"]]
 
@@ -62,9 +62,10 @@ for topic in topics:
 
 # find most occuring n grams and put in df
 wiki_df["all_words"] = file_contents
+n = 5
 for i in range(1,4):
-    wiki_df[f"top_{str(i)}"] = [get_top_n_words(x, 20, stop_words, (i,3)) for x in wiki_df["all_words"]]
+    wiki_df[f"top_{str(i)}"] = [get_top_n_words(x, n, stop_words, (i,3)) for x in wiki_df["all_words"]]
     wiki_df[f"top_{str(i)}"] = [[word for word,freq in tuple] for tuple in wiki_df[f"top_{str(i)}"]]
 
 # save dataframe as csv file
-wiki_df.to_csv(parent_path/ "wiki_df.csv")
+wiki_df.to_json(parent_path / "wiki_df.json")

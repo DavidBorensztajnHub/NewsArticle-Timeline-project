@@ -1,3 +1,7 @@
+"""
+takes html from urls (to wikipedia pages),
+extracts the words and stores them in text files
+"""
 
 import re
 import requests
