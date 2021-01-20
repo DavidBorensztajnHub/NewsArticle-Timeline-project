@@ -34,7 +34,10 @@ raw data and writes its body to a text file
 * `import pandas`
 * `import numpy`
 * `from bs4 import BeautifulSoup`
-* `import nltk` (and download english dataset)
+* `import nltk`
+    * `nltk.download()`
 * `from pathlib import Path`
 * `import sklearn`
 * `import requests`
+* `import spacy`
+    * `python -m spacy download en_core_web_lg`

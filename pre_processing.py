@@ -21,7 +21,7 @@ def open_json(filepath):
     for article in file:
         #if i  10 == 0:
         articles.append(json.loads(article))
-        #i+=1
+        i+=1
         if i > 10000: break
     file.close()
     return articles

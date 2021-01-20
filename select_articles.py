@@ -100,14 +100,7 @@ thresh = 3
 df = filter_topic(df, "intro", covid_terms, thresh)
 print(f"Kept {df.shape[0]} articles")
 
-<<<<<<< HEAD
-#df.to_csv("../virus.csv")
-#df.to_csv("../formula.csv")
-#df.to_csv("../brexit.csv")
-df.to_csv("../blm.csv")
-=======
 df.to_json("../covid.json")
 #df.to_csv("../f1.csv")
 #df.to_csv("../bxt.csv")
 #df.to_csv("../blm.csv")
->>>>>>> 997c6e7605bd613f8af1168a1d51bb5ade90dc5f
