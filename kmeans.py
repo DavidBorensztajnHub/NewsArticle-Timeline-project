@@ -17,7 +17,7 @@ X = cv.fit_transform(detokenized)
 
 wcss = []
 
-for i in range(1,1000):
+for i in tqdm(range(1,1000)):
     kmeans = KMeans(n_clusters = i, init='k-means++',max_iter = 300, n_init = 10, random_state = 0, verbose = True)
     kmeans.fit(X)
     wcss.append(kmeans.inertia_)
