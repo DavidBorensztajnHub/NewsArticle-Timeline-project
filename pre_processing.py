@@ -22,12 +22,12 @@ def open_json(filepath):
         #if i  10 == 0:
         articles.append(json.loads(article))
         i+=1
-        if i > 10000: break
+        if i > 30000: break
     file.close()
     return articles
 
 parent_path = Path.cwd().parent
-articles = open_json(parent_path / "articles_en_2020_raw.json")
+articles = open_json(parent_path / "raw_data/articles_en_2020_raw.json")
 
 # get dates and bodies for each article
 dates = [article["date"] for article in articles]
@@ -93,5 +93,5 @@ for col in columns:
 # set first 20 words of text as intro for articles that don't have an intro
 df.loc[~has_intro,"intro"] = df.loc[~has_intro,"text"[:20]]
 
-df.to_json(parent_path / "dataframe_10k_20.json")
+df.to_json(parent_path / "dataframe_30k_20.json")
 

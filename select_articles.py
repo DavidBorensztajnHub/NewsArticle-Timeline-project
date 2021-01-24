@@ -15,7 +15,7 @@ def remove_long_intros(df, max=100, col="intro"):
     return df
 
 # load data
-df = pd.read_json("../dataframe_10k_20.json")
+df = pd.read_json("../preproc_data/dataframe_30k_20.json")
 df = remove_long_intros(df)
 wiki_df = pd.read_json("../wiki_df.json")
 
@@ -100,7 +100,7 @@ thresh = 3
 df = filter_topic(df, "intro", covid_terms, thresh)
 print(f"Kept {df.shape[0]} articles")
 
-df.to_json("../covid.json")
+df.to_json("../covid_30k.json")
 #df.to_csv("../f1.csv")
 #df.to_csv("../bxt.csv")
 #df.to_csv("../blm.csv")
