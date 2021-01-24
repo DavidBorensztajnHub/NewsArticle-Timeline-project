@@ -7,7 +7,7 @@ from sklearn.cluster import DBSCAN, KMeans
 import matplotlib.pyplot as plt
 
 # load data
-df = pd.read_json("../preproc_data/dataframe_10k_20.json")
+df = pd.read_json("../dataframe_10k_20.json")
 
 # vectorization
 nlp = spacy.load('en_core_web_lg')  

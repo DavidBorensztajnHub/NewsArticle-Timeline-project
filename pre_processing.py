@@ -27,7 +27,7 @@ def open_json(filepath):
     return articles
 
 parent_path = Path.cwd().parent
-articles = open_json(parent_path / "raw_data/articles_en_2020_raw.json")
+articles = open_json(parent_path / "articles_en_2020_raw.json")
 
 # get dates and bodies for each article
 dates = [article["date"] for article in articles]

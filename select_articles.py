@@ -1,4 +1,3 @@
-
 """
 this program takes the pre processed dataset
 and only keeps the articles that are
@@ -15,7 +14,7 @@ def remove_long_intros(df, max=100, col="intro"):
     return df
 
 # load data
-df = pd.read_json("../preproc_data/dataframe_30k_20.json")
+df = pd.read_json("../dataframe_30k_20.json")
 df = remove_long_intros(df)
 wiki_df = pd.read_json("../wiki_df.json")
 
