@@ -13,10 +13,11 @@ from sklearn.feature_extraction.text import CountVectorizer
 import re
 from nltk.corpus import stopwords
 from collections import Counter
+from wikipedia_processing import remove_wikipedia_crap
 
 # load data
 parent_path = Path.cwd().parent
-df = pd.read_json("../dataframe.json")
+data = pd.read_json("../wiki_df.json")
 
 # creating a list of custom stopwords
 stop_words = set(stopwords.words("english"))
@@ -50,7 +51,7 @@ def get_top_n_words2(corpus, n=20):
 #df["top_n_words"] = [get_top_n_words2(x) for x in df["text"]]
 
 # create df
-topics = ["covid","blm","bxt","f1"]
+topics = ["covid","blm","bxt","f1", "impeach"]
 wiki_df = pd.DataFrame(data={"all_words":" "},index=topics)
 
 # add wikipedia words to df
@@ -58,6 +59,7 @@ file_contents = []
 for topic in topics:
     file = open(f"../wiki_{topic}.txt","r")
     content = file.readlines()
+    content = remove_wikipedia_crap(content[0])
     file_contents.append(content)
 
 # find most occuring n grams and put in df
@@ -67,5 +69,8 @@ for i in range(1,4):
     wiki_df[f"top_{str(i)}"] = [get_top_n_words(x, n, stop_words, (i,3)) for x in wiki_df["all_words"]]
     wiki_df[f"top_{str(i)}"] = [[word for word,freq in tuple] for tuple in wiki_df[f"top_{str(i)}"]]
 
-# save dataframe as csv file
+# save dataframe as json file
 wiki_df.to_json(parent_path / "wiki_df.json")
+
+# save dataframe as csv file
+wiki_df.to_csv(parent_path / "wiki_df.csv")

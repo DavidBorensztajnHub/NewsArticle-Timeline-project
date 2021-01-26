@@ -14,7 +14,7 @@ def remove_long_intros(df, max=100, col="intro"):
     return df
 
 # load data
-df = pd.read_json("../dataframe_30k_20.json")
+df = pd.read_json("../dataframe_200k.json")
 df = remove_long_intros(df)
 wiki_df = pd.read_json("../wiki_df.json")
 
@@ -36,6 +36,12 @@ blm_terms = {1:wiki_df.loc["blm","top_1"],
                 2:[x.split(" ") for x in wiki_df.loc["blm","top_2"]],
                 3:[x.split(" ") for x in wiki_df.loc["blm","top_3"]]}
 
+impeach_terms = {1:wiki_df.loc["impeach","top_1"],
+                2:[x.split(" ") for x in wiki_df.loc["impeach","top_2"]],
+                3:[x.split(" ") for x in wiki_df.loc["impeach","top_3"]]}
+
+
+
 # manually change it a bit
 covid_terms[2][2] = ["global","pandemic"]
 
@@ -46,13 +52,24 @@ f1_terms[2][4] = ["max","verstappen"]
 bxt_terms[2][0] = ["transition","period"]
 bxt_terms[3][0] = ["withdraw","united","kingdom"]
 del bxt_terms[3][1:]
-
 blm_terms[1][3] = "floyd"
 blm_terms[1][4] = "breonna"
 blm_terms[2][2] = ["george","floyd"]
 blm_terms[2][3] = ["breonna","taylor"]
 blm_terms[2][4] = ["movement","black"]
 
+impeach_terms[1][0] = "trial"
+impeach_terms[1][4] = "committee"
+impeach_terms[2][2] = ["trump", "trial"]
+impeach_terms[2][4] = ["impeachment", "trump"]
+impeach_terms[2][0] = ["impeachment", "committee"]
+impeach_terms[1][2] = "impeached"
+del impeach_terms[1][3]
+
+
+
+
+print(impeach_terms)
 # this function only keeps the relevant articles in the dataframe
 def filter_topic(df, col, search_terms, thresh):
     filter = []
@@ -67,21 +84,21 @@ def filter_topic(df, col, search_terms, thresh):
             # single words
             for term in search_terms[1]:
                 if word1 == term:
-                    #if term not in article_terms:
-                    score += 1
-                    article_terms.append(term)
+                    if term not in article_terms:
+                        score += 1
+                        article_terms.append(term)
             # 2 words
             for term1, term2 in search_terms[2]:
                 if term1 == word1 and term2 == word2: 
-                    #if (term1,term2) not in article_terms:
-                    score += 2
-                    article_terms.append((term1,term2))
+                    if (term1,term2) not in article_terms:
+                        score += 2
+                        article_terms.append((term1,term2))
             # 3 words
             for term1, term2, term3 in search_terms[3]:
                 if term1 == word1 and term2 == word2 and term3 == word3:
-                    #if (term1,term2,term3) not in article_terms:
-                    score += 3
-                    article_terms.append((term1,term2,term3))
+                    if (term1,term2,term3) not in article_terms:
+                        score += 2
+                        article_terms.append((term1,term2,term3))
         if article_terms == []:
             article_terms.append(score)
             article_terms.append(None)
@@ -96,10 +113,18 @@ def filter_topic(df, col, search_terms, thresh):
 # filter articles
 thresh = 3
 
-df = filter_topic(df, "intro", covid_terms, thresh)
+
+df = filter_topic(df, "intro", bxt_terms, thresh)
 print(f"Kept {df.shape[0]} articles")
 
-df.to_json("../covid_30k.json")
+# df.to_json("../covid.json")
+# df.to_json("../f1.json")
+df.to_json("../bxt.json")
+#df.to_json("../blm.json")
+#df.to_json("../blm.json")
+
+#df.to_csv("../covid.csv")
 #df.to_csv("../f1.csv")
-#df.to_csv("../bxt.csv")
+df.to_csv("../bxt.csv")
 #df.to_csv("../blm.csv")
+# df.to_csv("../impeach.csv")

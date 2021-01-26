@@ -22,7 +22,6 @@ def open_json(filepath):
         #if i  10 == 0:
         articles.append(json.loads(article))
         i+=1
-        if i > 30000: break
     file.close()
     return articles
 
@@ -33,6 +32,7 @@ articles = open_json(parent_path / "articles_en_2020_raw.json")
 dates = [article["date"] for article in articles]
 bodies = [article["body"] for article in articles]
 
+
 # unpack body into title, intro and text
 def unpack_bodies(bodies):
     intros = [next((sec["content"] for sec in body if sec["type"]=="intro"), None) for body in bodies]
@@ -41,6 +41,9 @@ def unpack_bodies(bodies):
     return intros, headers, paragraphs
 
 intros, headers, pars = unpack_bodies(bodies)
+
+
+
 
 # put articles into pandas dataframe
 df = pd.DataFrame({"date":dates, "header":headers, "intro":intros, "text": pars})
@@ -93,5 +96,4 @@ for col in columns:
 # set first 20 words of text as intro for articles that don't have an intro
 df.loc[~has_intro,"intro"] = df.loc[~has_intro,"text"[:20]]
 
-df.to_json(parent_path / "dataframe_30k_20.json")
-
+df.to_json(parent_path / "dataframe_200k_20.json")

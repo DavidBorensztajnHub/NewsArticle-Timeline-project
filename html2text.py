@@ -58,7 +58,7 @@ def html2text(html):
 # urls
 urls = {"covid":"https://en.wikipedia.org/wiki/Coronavirus_disease_2019",
 "blm":"https://en.wikipedia.org/wiki/Black_Lives_Matter",
-"bxt":"https://en.wikipedia.org/wiki/Brexit","f1":"https://en.wikipedia.org/wiki/Formula_One"}
+"bxt":"https://en.wikipedia.org/wiki/Brexit","f1":"https://en.wikipedia.org/wiki/Formula_One", "impeach": "https://en.wikipedia.org/wiki/First_impeachment_of_Donald_Trump"}
 
 # apply function
 for topic, url in urls.items():

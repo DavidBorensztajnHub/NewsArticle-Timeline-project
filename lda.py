@@ -20,3 +20,11 @@ article_num = 16
 print(df.iloc[article_num,:])
 for index, score in sorted(lda_model[bag_of_words[article_num]], key=lambda tup: -1*tup[1]):
     print("\nScore: {}\t \nTopic: {}".format(score, lda_model.print_topic(index, 10)))
+
+
+
+import pyLDAvis
+import pyLDAvis.gensim
+vis = pyLDAvis.gensim.prepare(topic_model=lda_model, corpus=bag_of_words, dictionary=dictionary)
+pyLDAvis.enable_notebook()
+pyLDAvis.display(vis)
