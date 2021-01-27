@@ -1,5 +1,6 @@
 #libraries
-import pandas as pd, numpy as np
+import pandas as pd
+import numpy as np
 from pathlib import Path
 from tqdm import tqdm
 import spacy
@@ -32,14 +33,44 @@ vectors = tfidf_vectorizer.fit_transform(df["str_intro"]) #fit the vectorizer to
 #     dbscan = DBSCAN(eps = i, min_samples=2, metric="cosine", ).fit(x)
 #     n_classes.update({i: len(pd.Series(dbscan.labels_).value_counts())})
 
-dbscan = DBSCAN(eps = 0.05, min_samples=2, metric="cosine", ).fit(vectors)
-# optics = OPTICS(min_samples=2,  metric="cosine").fit(vectors)
+# A high ratio stands for good clustering
+epsilist = []
+percentage_list = []
+def check_onedate(cluster):
+    if len(cluster.date.value_counts()) == 1:
+        return 1
+    else:
+        return 0
 
-kmeans = KMeans(n_clusters=25).fit(vectors)
+for i in tqdm(np.arange(0.001, 1, 0.002)):
+    dbscan = DBSCAN(eps = i, min_samples=2, metric="cosine", ).fit(vectors)
+    results_df = pd.DataFrame({"label":dbscan.labels_, "sent":df["str_header"], "date":df["date"]})
+    nr_clusters = len(pd.Series(dbscan.labels_).value_counts())
+    clusters_df = results_df[results_df.label != -1]
+    single_date_count = 0
+    for cluster in range(nr_clusters - 1):
+        c = clusters_df[clusters_df["label"] == cluster]
+        single_date_count += check_onedate(c)
+    if nr_clusters == 1:
+        nr_clusters += 1
+    percentage = single_date_count / (nr_clusters - 1)
+    percentage_list.append(percentage)
+    epsilist.append(i)
 
-results = pd.DataFrame({"label":dbscan.labels_, "sent":df["str_header"], "date":df["date"]})
 
-results.to_csv("../covid_events.csv", index=False)
+plt.plot(epsilist, percentage_list)
+plt.show()
+
+dbscan = DBSCAN(eps = 0.175, min_samples=3, metric="cosine", ).fit(vectors)
+results_df = pd.DataFrame({"label":dbscan.labels_, "sent":df["str_header"], "date":df["date"]})
+
+# amount_clusters = len(pd.Series(dbscan.labels_).value_counts())
+# clusters_df = results_df[results_df.label != -1]
+
+# amount_dates = len(clusters_df["date"].value_counts())
+# ratio = nr_clusters / number_dates
+
+results_df.to_csv("../covid_events.csv", index=False)
 #print(kmeans.inertia_)
 
 """
