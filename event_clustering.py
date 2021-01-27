@@ -1,12 +1,9 @@
 #libraries
 import pandas as pd, numpy as np
-from pathlib import Path
 from tqdm import tqdm
 import spacy
 from sklearn.cluster import DBSCAN, KMeans, OPTICS
-import matplotlib.pyplot as plt
 from sklearn.feature_extraction.text import TfidfVectorizer
-
 
 # load data
 df = pd.read_json("../covid.json")
@@ -19,7 +16,6 @@ df["str_intro"] = [" ".join(x) for x in df.intro]
 tfidf_vectorizer = TfidfVectorizer()
 df.drop_duplicates(subset="str_header",keep=False,inplace=True)
 df.drop_duplicates(subset="str_intro",keep="first",inplace=True)
-
 
 # df["vectors"] = [tfidf_vectorizer.fit_transform(x) for x in df["str_text"]]
 
@@ -35,7 +31,7 @@ vectors = tfidf_vectorizer.fit_transform(df["str_intro"]) #fit the vectorizer to
 dbscan = DBSCAN(eps = 0.05, min_samples=2, metric="cosine", ).fit(vectors)
 # optics = OPTICS(min_samples=2,  metric="cosine").fit(vectors)
 
-kmeans = KMeans(n_clusters=25).fit(vectors)
+#kmeans = KMeans(n_clusters=25).fit(vectors)
 
 results = pd.DataFrame({"label":dbscan.labels_, "sent":df["str_header"], "date":df["date"]})
 
