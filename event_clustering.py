@@ -1,13 +1,15 @@
 #libraries
+<<<<<<< HEAD
 import pandas as pd
 import numpy as np
 from pathlib import Path
+=======
+import pandas as pd, numpy as np
+>>>>>>> f64b002a6ae87be1eeeaaab8092c9702cd462448
 from tqdm import tqdm
 import spacy
 from sklearn.cluster import DBSCAN, KMeans, OPTICS
-import matplotlib.pyplot as plt
 from sklearn.feature_extraction.text import TfidfVectorizer
-
 
 # load data
 df = pd.read_json("../covid.json")
@@ -20,7 +22,6 @@ df["str_intro"] = [" ".join(x) for x in df.intro]
 tfidf_vectorizer = TfidfVectorizer()
 df.drop_duplicates(subset="str_header",keep=False,inplace=True)
 df.drop_duplicates(subset="str_intro",keep="first",inplace=True)
-
 
 # df["vectors"] = [tfidf_vectorizer.fit_transform(x) for x in df["str_text"]]
 
@@ -42,6 +43,7 @@ def check_onedate(cluster):
     else:
         return 0
 
+<<<<<<< HEAD
 for i in tqdm(np.arange(0.001, 1, 0.002)):
     dbscan = DBSCAN(eps = i, min_samples=2, metric="cosine", ).fit(vectors)
     results_df = pd.DataFrame({"label":dbscan.labels_, "sent":df["str_header"], "date":df["date"]})
@@ -56,6 +58,9 @@ for i in tqdm(np.arange(0.001, 1, 0.002)):
     percentage = single_date_count / (nr_clusters - 1)
     percentage_list.append(percentage)
     epsilist.append(i)
+=======
+#kmeans = KMeans(n_clusters=25).fit(vectors)
+>>>>>>> f64b002a6ae87be1eeeaaab8092c9702cd462448
 
 
 plt.plot(epsilist, percentage_list)
